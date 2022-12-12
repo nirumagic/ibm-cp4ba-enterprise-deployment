@@ -1,0 +1,108 @@
+- name: Create Project
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: create-project
+  vars:
+    common_k8s_api_key: "{{ cp4ba_k8s_api_key | default(omit) }}"
+    common_k8s_host: "{{ cp4ba_k8s_host | default(omit) }}"
+    common_namespace_name: "{{ cp4ba_project_name }}"
+    common_output_directory: "{{ cp4ba_output_directory }}"
+
+- name: Prepare yaml file for CatalogSource
+  ansible.builtin.template:
+    src: catalogsource.yaml.j2
+    dest: "{{ cp4ba_output_directory }}/catalogsource.yaml"
+    mode: u+rwx
+
+- name: Add CatalogSource
+  kubernetes.core.k8s:
+    api_key: "{{ cp4ba_k8s_api_key | default(omit) }}"
+    host: "{{ cp4ba_k8s_host | default(omit) }}"
+    state: present
+    force: false
+    merge_type: merge
+    src: "{{ cp4ba_output_directory }}/catalogsource.yaml"
+    wait: true
+    wait_sleep: 15
+    wait_timeout: 15
+
+- name: Wait for CatalogSource
+  kubernetes.core.k8s_info:
+    api_key: "{{ cp4ba_k8s_api_key | default(omit) }}"
+    host: "{{ cp4ba_k8s_host | default(omit) }}"
+    api_version: v1alpha1
+    kind: CatalogSource
+    name: "{{ item }}"
+    namespace: openshift-marketplace
+  register: catalogsource
+  retries: 40
+  delay: 5
+  until: ('READY' in catalogsource | json_query('resources[*].status.connectionState.lastObservedState') | unique)
+  with_items:
+    - ibm-cp4a-operator-catalog
+    - ibm-cp-automation-foundation-catalog
+    - ibm-automation-foundation-core-catalog
+    - opencloud-operators
+
+- name: Manage Operator
+  include_tasks: predeploy/operator.yml
+
+- name: Manage AutomationUIConfig
+  include_tasks: predeploy/iaf-automationuiconfig.yml
+
+- name: Manage Shared
+  include_tasks: predeploy/shared.yml
+
+- name: Manage RR
+  include_tasks: predeploy/rr.yml
+
+- name: Manage BAN
+  include_tasks: predeploy/ban.yml
+
+- name: Manage BAS
+  include_tasks: predeploy/bas.yml
+  when: cp4ba_config.optional_components.bas
+
+- name: Manage AutomationBase
+  include_tasks: predeploy/iaf-automationbase.yml
+  when: cp4ba_config.optional_components.bai or cp4ba_config.deployment_patterns.workflow
+
+- name: Manage BAI
+  include_tasks: predeploy/bai.yml
+  when: cp4ba_config.optional_components.bai
+
+- name: Manage ODM
+  include_tasks: predeploy/odm.yml
+  when: cp4ba_config.deployment_patterns.decisions
+
+- name: Manage ADS
+  include_tasks: predeploy/ads.yml
+  when: cp4ba_config.deployment_patterns.decisions_ads
+
+- name: Manage FNCM ES Google ID
+  include_tasks: predeploy/bai.yml
+  when: cp4ba_config.deployment_patterns.content and cp4ba_config.optional_components.es
+
+- name: Manage FNCM
+  include_tasks: predeploy/fncm.yml
+  when: cp4ba_config.deployment_patterns.content
+
+- name: Manage IER
+  include_tasks: predeploy/ier.yml
+  when: cp4ba_config.deployment_patterns.content and cp4ba_config.optional_components.ier
+
+- name: Manage AAE
+  include_tasks: predeploy/aae.yml
+  when: cp4ba_config.deployment_patterns.application
+
+- name: Manage AAE
+  include_tasks: predeploy/aae-data-persistence.yml
+  when: cp4ba_config.deployment_patterns.application and cp4ba_config.optional_components.ae_data_persistence
+
+- name: Manage ADP
+  include_tasks: predeploy/adp.yml
+  when: cp4ba_config.deployment_patterns.document_processing
+
+- name: Manage BAWAUT
+  include_tasks: predeploy/bawaut.yml
+  when: cp4ba_config.deployment_patterns.workflow and cp4ba_config.optional_components.baw_authoring

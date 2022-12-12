@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  generateName: nt-cp4ba-demo-servicing-
+  namespace: nt-cp4ba-demo
+  labels:
+    app: nt-cp4ba-demo-servicing
+spec:
+  containers:
+    - name: nt-cp4ba-demo
+      image: ubi9/ubi:9.0.0
+      command: ["/bin/bash"]
+      args:
+        ["-c","cd /usr; yum install git -y && git clone --branch ${GIT_BRANCH} ${GIT_REPOSITORY}; cd ./ibm-cp4ba-enterprise-deployment/scripts; chmod u+x servicing.sh; ./servicing.sh; while true; do echo 'NT Demo one click servicing pod - Ready - Enter it via Terminal and \"bash -l\" - Delete it after you are done.'; sleep 300; done"]      
+      imagePullPolicy: IfNotPresent
+      env:
+        - name: GIT_REPOSITORY
+          valueFrom:
+            configMapKeyRef:
+              name: nt-cp4ba-demo
+              key: git_repository
+        - name: GIT_BRANCH
+          valueFrom:
+            configMapKeyRef:
+              name: nt-cp4ba-demo
+              key: git_branch
+        - name: CONTAINER_RUN_MODE
+          value: "true"
+      volumeMounts:
+        - name: config
+          mountPath: /config/
+  volumes:
+    - name: config
+      configMap:
+        name: nt-cp4ba-demo

@@ -1,0 +1,70 @@
+- name: Manage Zen
+  include_tasks: postdeploy/zen.yml
+
+- name: Manage BAML
+  include_tasks: postdeploy/baml.yml
+  when: cp4ba_config.optional_components.bai and cp4ba_config.deployment_patterns.workflow
+
+- name: Manage ADS
+  include_tasks: postdeploy/ads.yml
+  when: cp4ba_config.deployment_patterns.decisions_ads
+
+- name: Manage ODM
+  include_tasks: postdeploy/odm.yml
+  when: cp4ba_config.deployment_patterns.decisions
+
+- name: Manage ADP
+  include_tasks: postdeploy/adp.yml
+  when: cp4ba_config.deployment_patterns.document_processing
+
+- name: Manage IER
+  include_tasks: postdeploy/ier.yml
+  when: cp4ba_config.deployment_patterns.content and cp4ba_config.optional_components.ier
+
+- name: Manage IER TM
+  include_tasks: postdeploy/ier-tm.yml
+  when: cp4ba_config.deployment_patterns.content and cp4ba_config.optional_components.ier
+    and cp4ba_config.optional_components.tm
+
+- name: Manage TM
+  include_tasks: postdeploy/tm.yml
+  when: cp4ba_config.deployment_patterns.content and cp4ba_config.optional_components.tm
+
+- name: Manage BAWAUT
+  include_tasks: postdeploy/bawaut.yml
+  when: cp4ba_config.deployment_patterns.workflow and cp4ba_config.optional_components.baw_authoring
+
+- name: Create Project
+  ansible.builtin.include_role:
+    name: common
+    tasks_from: create-project
+  vars:
+    common_k8s_api_key: "{{ cp4ba_k8s_api_key | default(omit) }}"
+    common_k8s_host: "{{ cp4ba_k8s_host | default(omit) }}"
+    common_namespace_name: "{{ cp4ba_output_namespace }}"
+    common_output_directory: "{{ cp4ba_output_directory }}"
+    common_project_output_name: "cp4ba-output-project.yaml"
+
+- name: Prepare post-deploy.md
+  ansible.builtin.template:
+    src: postdeploy.md.j2
+    dest: "{{ cp4ba_output_directory }}/postdeploy.md"
+    mode: u+rwx
+
+- name: Prepare post-deploy.md Config Map
+  ansible.builtin.template:
+    src: postdeploy-configmap.yaml.j2
+    dest: "{{ cp4ba_output_directory }}/postdeploy-configmap.yaml"
+    mode: u+rwx
+
+- name: Add post-deploy.md Config Map
+  kubernetes.core.k8s:
+    api_key: "{{ cp4ba_k8s_api_key | default(omit) }}"
+    host: "{{ cp4ba_k8s_host | default(omit) }}"
+    state: present
+    force: false
+    merge_type: merge
+    src: "{{ cp4ba_output_directory }}/postdeploy-configmap.yaml"
+    wait: true
+    wait_sleep: 15
+    wait_timeout: 15
