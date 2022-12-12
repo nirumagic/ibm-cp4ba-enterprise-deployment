@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: usage
-  namespace: apollo-one-shot
+  namespace: nt-cp4ba-demo
 data:
   usage.md: |- 
     {{ lookup('file', usage_path) | indent(4) }}

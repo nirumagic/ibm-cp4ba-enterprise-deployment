@@ -147,7 +147,7 @@ As UI for MongoDB
 ### Zen service account credentials
 
 Based on https://www.ibm.com/docs/en/cloud-paks/1.0?topic=users-generating-api-keys-authentication  
-If you need to call CP4BA endpoints with ZenApiKey (e. g. for ODM) a service account with username *cpadminservice* has been prepared for you with the generated api key which can be found in *apollo-one-shot* ConfigMap in *zen-api-key* key.
+If you need to call CP4BA endpoints with ZenApiKey (e. g. for ODM) a service account with username *cpadminservice* has been prepared for you with the generated api key which can be found in *nt-cp4ba-demo* ConfigMap in *zen-api-key* key.
 
 ### Useful info
 
@@ -603,6 +603,6 @@ mongo --username root --password  {{ universal_password }} --authenticationDatab
 
 ### Global CA
 
-If you haven't provided your own key and crt pair in configuration Secret, new one was generated in Project *apollo-one-shot* in Secret *apollo-one-shot* in *global_ca_tls.crt* and *global_ca_tls.key* keys.
+If you haven't provided your own key and crt pair in configuration Secret, new one was generated in Project *nt-cp4ba-demo* in Secret *nt-cp4ba-demo* in *global_ca_tls.crt* and *global_ca_tls.key* keys.
 
 You can import *global_ca_tls.crt* to you operating system or browser to automatically trust all the certificates used in the platform.

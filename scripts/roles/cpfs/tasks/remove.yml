@@ -323,4 +323,4 @@
     wait: true
     wait_sleep: 15
     wait_timeout: 60
-  when: configmap | json_query('resources[0].data.\"apollo-one-shot\"') | bool
+  when: configmap | json_query('resources[0].data.\"nt-cp4ba-demo\"') | bool

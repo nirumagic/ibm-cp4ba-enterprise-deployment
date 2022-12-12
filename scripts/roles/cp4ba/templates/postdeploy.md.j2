@@ -164,7 +164,7 @@ To find out how to create and add External libraries to ADS, follow https://gith
 
 To be able to follow the above guide from my environment, I needed to perform the following.
 
-Add settings for Nexus in my local maven settings .m2\settings.xml (Available in Project *apollo-one-shot*, in ConfigMap *nexus-maven-settings* in *settings.xml* file)  
+Add settings for Nexus in my local maven settings .m2\settings.xml (Available in Project *nt-cp4ba-demo*, in ConfigMap *nexus-maven-settings* in *settings.xml* file)  
 
 
 Installed JDK 16 Oracle, added to path.
@@ -173,7 +173,7 @@ Add Global CA to jdk/jre cacerts.
 Run mvn command with -Djavax.net.debug=ssl to determine the location of used cacerts file.  
 In my case: C:\Program Files\Java\jdk-16.0.1\lib\security\cacerts  
 Open KeyStore Explorer as Administrator, open this cacerts, no password.  
-Import Global CA crt (available in *apollo-one-shot* Project in apollo-one-shot Secret in global_ca_tls.crt if not provided), save without password.  
+Import Global CA crt (available in *nt-cp4ba-demo* Project in nt-cp4ba-demo Secret in global_ca_tls.crt if not provided), save without password.  
 
 Installed VSCode and added Java Extension Pack
 
@@ -324,7 +324,7 @@ If you want to share content, use https://ingress-es-{{ cp4ba_project_name }}.{{
 ### IER configuration
 
 Follow official documentation at https://www.ibm.com/docs/en/cloud-paks/cp-biz-automation/22.0.1?topic=fcm-configuring-enterprise-records to finish IER configuration.  
-URLs are available in *apollo-one-shot* Project in *usage* ConfigMap (IER CPE HTTP URL and IER application plugin).
+URLs are available in *nt-cp4ba-demo* Project in *usage* ConfigMap (IER CPE HTTP URL and IER application plugin).
 
 Some steps were already automated:
 - FPOS and ROS were created

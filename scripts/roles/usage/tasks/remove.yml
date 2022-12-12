@@ -6,7 +6,7 @@
     api_version: v1
     kind: ConfigMap
     name: usage
-    namespace: apollo-one-shot
+    namespace: nt-cp4ba-demo
     force: false
     wait: true
     wait_sleep: 15

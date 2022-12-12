@@ -41,7 +41,7 @@
         kind: Secret
         api: v1
         name: "{{ lc_ldap_ssl_secret_name }}"
-        namespace: apollo-one-shot
+        namespace: nt-cp4ba-demo
       register: _ldap_ssl_crt
 
     - name: Get the LDAP SSL Certificate
